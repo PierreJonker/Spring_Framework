@@ -23,20 +23,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for simplicity in this case
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/auth/signup", "/api/auth/login").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()  // Allow Swagger and v3 access
-                        .anyRequest().authenticated() // All other requests need to be authenticated
+                        .requestMatchers("/api/auth/signup", "/api/auth/login").permitAll() // Allow signup and login
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Allow public access to Swagger and OpenAPI
+                        .requestMatchers("/api/auth/update").authenticated() // Allow only authenticated users to update their details
+                        .anyRequest().authenticated() // All other requests need authentication
                 )
-                .httpBasic().disable(); // Disabled httpBasic to avoid deprecation warning
+                .httpBasic(); // Enable basic authentication
 
         return http.build();
     }
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        // Build the AuthenticationManager using HttpSecurity
         AuthenticationManagerBuilder authenticationManagerBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
         return authenticationManagerBuilder.build();

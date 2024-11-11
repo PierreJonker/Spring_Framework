@@ -4,6 +4,7 @@ import com.jonkersvault.dto.SignupRequest;
 import com.jonkersvault.dto.LoginRequest;
 import com.jonkersvault.model.User;
 import com.jonkersvault.service.UserService;
+import com.jonkersvault.dto.UserResetRequest; // Import the reset request DTO
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,13 +26,11 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody SignupRequest signupRequest) {
-        // Create a new User object and set properties
         User user = new User();
         user.setEmail(signupRequest.getEmail());
         user.setPassword(signupRequest.getPassword());
         user.setBirthDate(signupRequest.getBirthDate());
 
-        // Call the service to save the user
         userService.registerUser(user);
 
         return ResponseEntity.ok("User registered successfully!");
@@ -39,16 +38,25 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-        // Authenticate the user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(), loginRequest.getPassword()
                 )
         );
 
-        // Set the authentication in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return ResponseEntity.ok("Login successful!");
+    }
+
+    // Method for updating user details
+    @PutMapping("/update")
+    public ResponseEntity<String> updateUserDetails(@RequestBody UserResetRequest userResetRequest) {
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName(); // Get the authenticated user's email
+
+        // Correctly call the updateUserDetails method in UserService
+        User updatedUser = userService.updateUserDetails(currentUserEmail, userResetRequest);
+
+        return ResponseEntity.ok("User details updated successfully!");
     }
 }

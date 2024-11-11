@@ -2,11 +2,10 @@ package com.jonkersvault.service;
 
 import com.jonkersvault.model.User;
 import com.jonkersvault.repository.UserRepository;
+import com.jonkersvault.dto.UserResetRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
 
 @Service
 public class UserService {
@@ -17,20 +16,26 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public User registerUser(String email, String password, LocalDate birthDate) {
-        // Check if email already exists
-        if (userRepository.findByEmail(email).isPresent()) {
-            throw new RuntimeException("Email already exists!");
-        }
-        // Create new user with hashed password
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setBirthDate(birthDate);
+    public User registerUser(User user) {
         return userRepository.save(user);
     }
-    public void registerUser(User user) {
-        // Your logic for registering the user
+
+    // Correctly implement the method here
+    public User updateUserDetails(String currentEmail, UserResetRequest userResetRequest) {
+        User user = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Update the user's details if provided
+        if (userResetRequest.getEmail() != null) {
+            user.setEmail(userResetRequest.getEmail());
+        }
+        if (userResetRequest.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(userResetRequest.getPassword()));
+        }
+        if (userResetRequest.getBirthDate() != null) {
+            user.setBirthDate(userResetRequest.getBirthDate());
+        }
+
+        return userRepository.save(user); // Save updated user
     }
 }
-
