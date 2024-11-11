@@ -4,7 +4,6 @@ import com.jonkersvault.dto.SignupRequest;
 import com.jonkersvault.dto.LoginRequest;
 import com.jonkersvault.model.User;
 import com.jonkersvault.service.UserService;
-import com.jonkersvault.dto.UserResetRequest; // Import the reset request DTO
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,18 +23,18 @@ public class UserController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    // Signup endpoint
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody SignupRequest signupRequest) {
         User user = new User();
         user.setEmail(signupRequest.getEmail());
         user.setPassword(signupRequest.getPassword());
         user.setBirthDate(signupRequest.getBirthDate());
-
         userService.registerUser(user);
-
         return ResponseEntity.ok("User registered successfully!");
     }
 
+    // Login endpoint
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -43,20 +42,27 @@ public class UserController {
                         loginRequest.getEmail(), loginRequest.getPassword()
                 )
         );
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         return ResponseEntity.ok("Login successful!");
     }
 
-    // Method for updating user details
+    // Update User details endpoint
     @PutMapping("/update")
-    public ResponseEntity<String> updateUserDetails(@RequestBody UserResetRequest userResetRequest) {
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName(); // Get the authenticated user's email
+    public ResponseEntity<String> updateUserDetails(@RequestBody User updatedUser) {
+        // Get the current authenticated user
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // Correctly call the updateUserDetails method in UserService
-        User updatedUser = userService.updateUserDetails(currentUserEmail, userResetRequest);
-
+        // We only update email, password, and birth date
+        userService.updateUserDetails(currentUserEmail, updatedUser);
         return ResponseEntity.ok("User details updated successfully!");
+    }
+
+    // Delete User account endpoint
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteUser() {
+        // Get the current authenticated user
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        userService.deleteUserByEmail(currentUserEmail);
+        return ResponseEntity.ok("User account deleted successfully!");
     }
 }
