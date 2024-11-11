@@ -1,24 +1,26 @@
 package com.jonkersvault.model;
 
-import jakarta.persistence.*;
-import java.time.LocalDate;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "\"users\"") // Escaping the reserved keyword "user"
+@Table(name = "users")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
+    @Email
     @Column(nullable = false, unique = true)
     private String email;
 
+    @NotBlank
     @Column(nullable = false)
     private String password;
 
@@ -26,5 +28,5 @@ public class User {
     private LocalDate birthDate;
 
     @Column(nullable = false)
-    private String role = "USER"; // Default role
+    private String role = "USER"; // Set default role
 }

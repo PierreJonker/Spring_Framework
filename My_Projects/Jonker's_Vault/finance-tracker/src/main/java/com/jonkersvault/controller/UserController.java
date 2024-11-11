@@ -1,64 +1,54 @@
 package com.jonkersvault.controller;
 
+import com.jonkersvault.dto.SignupRequest;
+import com.jonkersvault.dto.LoginRequest;
 import com.jonkersvault.model.User;
 import com.jonkersvault.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class UserController {
 
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
+    private AuthenticationManager authenticationManager;
 
-    // Get all users
-    @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+    @PostMapping("/signup")
+    public ResponseEntity<String> signup(@RequestBody SignupRequest signupRequest) {
+        // Create a new User object and set properties
+        User user = new User();
+        user.setEmail(signupRequest.getEmail());
+        user.setPassword(signupRequest.getPassword());
+        user.setBirthDate(signupRequest.getBirthDate());
+
+        // Call the service to save the user
+        userService.registerUser(user);
+
+        return ResponseEntity.ok("User registered successfully!");
     }
 
-    // Get user by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        Optional<User> user = userService.findUserById(id);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        // Authenticate the user
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getEmail(), loginRequest.getPassword()
+                )
+        );
 
-    // Register a new user
-    @PostMapping("/register")
-    public ResponseEntity<User> registerUser(
-            @RequestParam String email,
-            @RequestParam String password,
-            @RequestParam String birthDate) {
-        User newUser = userService.registerUser(email, password, birthDate);
-        return ResponseEntity.ok(newUser);
-    }
+        // Set the authentication in the SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    // Update user details
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(
-            @PathVariable Long id,
-            @RequestParam String email,
-            @RequestParam String password,
-            @RequestParam String birthDate) {
-        User updatedUser = userService.updateUserDetails(id, email, password, birthDate);
-        if (updatedUser != null) {
-            return ResponseEntity.ok(updatedUser);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    // Delete user by ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
-        userService.deleteUserById(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Login successful!");
     }
 }
