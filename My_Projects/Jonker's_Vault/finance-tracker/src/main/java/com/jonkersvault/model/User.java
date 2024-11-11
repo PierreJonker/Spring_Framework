@@ -1,13 +1,13 @@
 package com.jonkersvault.model;
 
+import jakarta.persistence.*;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "\"user\"") // Escape the table name to avoid conflicts with reserved keywords
+@Table(name = "\"users\"") // Escaping the reserved keyword "user"
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,16 +17,14 @@ public class User {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String username;
+    private String email;
 
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+    @Column(nullable = false)
+    private LocalDate birthDate;
 
-    private String role = "USER";
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(nullable = false)
+    private String role = "USER"; // Default role
 }
