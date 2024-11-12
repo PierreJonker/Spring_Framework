@@ -9,15 +9,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-
-    // Constructor injection for dependencies
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // Register a new user with password hashing
     public User registerUser(User user) {
@@ -35,15 +31,10 @@ public class UserService {
     // Update user details (email, password, birthdate)
     public void updateUserDetails(String email, User updatedUser) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Only update the allowed fields
-        user.setEmail(updatedUser.getEmail());  // Update email
-        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));  // Hash the updated password
-        }
-        user.setBirthDate(updatedUser.getBirthDate());  // Update birthdate
-
-        // Save the user
+        user.setEmail(updatedUser.getEmail());
+        // Hash the password if it is updated
+        user.setPassword(passwordEncoder.encode(updatedUser.getPassword())); // Hash the updated password
+        user.setBirthDate(updatedUser.getBirthDate());
         userRepository.save(user);
     }
 

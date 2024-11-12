@@ -25,9 +25,9 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for simplicity in this case
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/auth/signup", "/api/auth/login").permitAll() // Allow signup and login
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Allow public access to Swagger and OpenAPI
+                        .requestMatchers("/api/auth/signup", "/api/auth/login").permitAll() // Allow signup and login for everyone
                         .requestMatchers("/api/auth/update").authenticated() // Allow only authenticated users to update their details
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() // Allow Swagger and OpenAPI without authentication
                         .anyRequest().authenticated() // All other requests need authentication
                 )
                 .httpBasic(); // Enable basic authentication

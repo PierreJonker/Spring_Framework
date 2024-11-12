@@ -2,6 +2,7 @@ package com.jonkersvault.controller;
 
 import com.jonkersvault.dto.SignupRequest;
 import com.jonkersvault.dto.LoginRequest;
+import com.jonkersvault.dto.UserResetRequest; // Import the correct DTO for the update
 import com.jonkersvault.model.User;
 import com.jonkersvault.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -48,11 +49,16 @@ public class UserController {
 
     // Update User details endpoint
     @PutMapping("/update")
-    public ResponseEntity<String> updateUserDetails(@RequestBody User updatedUser) {
+    public ResponseEntity<String> updateUserDetails(@RequestBody UserResetRequest updatedUserRequest) {
         // Get the current authenticated user
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // We only update email, password, and birth date
+        // Pass only the relevant fields to the service method
+        User updatedUser = new User();
+        updatedUser.setEmail(updatedUserRequest.getEmail());
+        updatedUser.setPassword(updatedUserRequest.getPassword());
+        updatedUser.setBirthDate(updatedUserRequest.getBirthDate());
+
         userService.updateUserDetails(currentUserEmail, updatedUser);
         return ResponseEntity.ok("User details updated successfully!");
     }
