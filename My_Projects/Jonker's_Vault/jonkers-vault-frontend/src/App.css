@@ -1,0 +1,78 @@
+/* General page styling */
+.container {
+  max-width: 500px;
+  margin: 50px auto; /* Top margin for spacing */
+  text-align: center; /* Center the text */
+  color: #32CD32; /* Green color from the logo */
+}
+
+h2 {
+  color: #32CD32; /* Green color for headings */
+  margin-bottom: 20px;
+  font-weight: bold; /* Bolder text for emphasis */
+}
+
+/* Button styling */
+button {
+  background-color: #32CD32;
+  border: none; /* Removed border for a clean look */
+  color: #fff;
+  width: 100%; /* Full-width button */
+  font-size: 16px;
+  padding: 12px; /* Larger touch targets */
+  border-radius: 5px; /* Rounded corners */
+  transition: background-color 0.3s; /* Smooth hover transition */
+}
+
+button:hover {
+  background-color: #28a745; /* Darker green on hover */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+/* Form styling */
+.form-control {
+  border: 1px solid #32CD32; /* Green border */
+  color: #000; /* Black text */
+  border-radius: 4px; /* Rounded corners */
+  padding: 10px; /* Padding for better input experience */
+}
+
+.form-control:focus {
+  border-color: #28a745; /* Darker green border on focus */
+  box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); /* Subtle shadow effect */
+}
+
+/* Navbar custom styling */
+.navbar {
+  background-color: #000; /* Black background */
+  padding: 5px 20px; /* Reduced padding for a more compact navbar */
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center; /* Center items vertically */
+}
+
+.navbar-brand img {
+  width: 50px; /* Larger logo size */
+  height: 50px; /* Larger logo size */
+  margin-right: 10px; /* Space between logo and text */
+}
+
+.navbar-title {
+  font-size: 20px; /* Adjusted font size */
+  color: #32CD32; /* Green color for the brand text */
+  font-weight: bold;
+  text-transform: uppercase; /* Uppercase text */
+}
+
+.nav-link {
+  color: #32CD32 !important; /* Green color for links */
+  font-weight: bold; /* Make text bolder */
+  text-transform: uppercase; /* Uppercase text for consistency */
+  margin-left: 15px; /* Spacing between links */
+}
+
+.nav-link:hover {
+  color: #28a745 !important; /* Darker green on hover */
+}
