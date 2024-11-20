@@ -1,9 +1,11 @@
 package com.jonkersvault.controller;
 
 import com.jonkersvault.dto.FinancialGoalDTO;
-import com.jonkersvault.model.FinancialGoal;
 import com.jonkersvault.service.FinancialGoalService;
+import com.jonkersvault.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,58 +17,38 @@ public class FinancialGoalsController {
     @Autowired
     private FinancialGoalService financialGoalService;
 
-    // Create a financial goal
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @PostMapping
-    public FinancialGoalDTO createGoal(@RequestBody FinancialGoalDTO financialGoalDTO) {
-        FinancialGoal financialGoal = new FinancialGoal();
-        financialGoal.setGoalName(financialGoalDTO.getGoalName());
-        financialGoal.setTargetAmount(financialGoalDTO.getTargetAmount());
-        financialGoal.setCurrentAmount(financialGoalDTO.getCurrentAmount());
-        financialGoal.setTargetDate(financialGoalDTO.getTargetDate());
-
-        FinancialGoal createdGoal = financialGoalService.createGoal(financialGoal);
-        return mapToDTO(createdGoal);
+    public ResponseEntity<FinancialGoalDTO> createGoal(@RequestBody FinancialGoalDTO goalDTO,
+                                                       @RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        FinancialGoalDTO createdGoal = financialGoalService.createGoal(goalDTO, email);
+        return new ResponseEntity<>(createdGoal, HttpStatus.CREATED);
     }
 
-    // Get all financial goals for the logged-in user
     @GetMapping
-    public List<FinancialGoalDTO> getGoals() {
-        List<FinancialGoal> goals = financialGoalService.getGoalsByUser();
-        return goals.stream().map(this::mapToDTO).toList();
+    public ResponseEntity<List<FinancialGoalDTO>> getGoals(@RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        List<FinancialGoalDTO> goals = financialGoalService.getGoalsByUser(email);
+        return new ResponseEntity<>(goals, HttpStatus.OK);
     }
 
-    // Update a financial goal for the logged-in user
     @PutMapping("/{goalId}")
-    public FinancialGoalDTO updateGoal(@PathVariable Long goalId, @RequestBody FinancialGoalDTO financialGoalDTO) {
-        FinancialGoal updatedGoal = financialGoalService.updateGoal(goalId, mapToEntity(financialGoalDTO));
-        return mapToDTO(updatedGoal);
+    public ResponseEntity<FinancialGoalDTO> updateGoal(@PathVariable Long goalId,
+                                                       @RequestBody FinancialGoalDTO goalDTO,
+                                                       @RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        FinancialGoalDTO updatedGoal = financialGoalService.updateGoal(goalId, goalDTO, email);
+        return new ResponseEntity<>(updatedGoal, HttpStatus.OK);
     }
 
-    // Delete a financial goal for the logged-in user
     @DeleteMapping("/{goalId}")
-    public void deleteGoal(@PathVariable Long goalId) {
-        financialGoalService.deleteGoal(goalId);
-    }
-
-    // Map FinancialGoal to FinancialGoalDTO
-    private FinancialGoalDTO mapToDTO(FinancialGoal financialGoal) {
-        FinancialGoalDTO dto = new FinancialGoalDTO();
-        dto.setId(financialGoal.getId());
-        dto.setGoalName(financialGoal.getGoalName());
-        dto.setTargetAmount(financialGoal.getTargetAmount());
-        dto.setCurrentAmount(financialGoal.getCurrentAmount());
-        dto.setTargetDate(financialGoal.getTargetDate());
-        dto.setCreatedAt(financialGoal.getCreatedAt());
-        return dto;
-    }
-
-    // Map FinancialGoalDTO to FinancialGoal entity
-    private FinancialGoal mapToEntity(FinancialGoalDTO financialGoalDTO) {
-        FinancialGoal financialGoal = new FinancialGoal();
-        financialGoal.setGoalName(financialGoalDTO.getGoalName());
-        financialGoal.setTargetAmount(financialGoalDTO.getTargetAmount());
-        financialGoal.setCurrentAmount(financialGoalDTO.getCurrentAmount());
-        financialGoal.setTargetDate(financialGoalDTO.getTargetDate());
-        return financialGoal;
+    public ResponseEntity<Void> deleteGoal(@PathVariable Long goalId,
+                                           @RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        financialGoalService.deleteGoal(goalId, email);
+        return ResponseEntity.noContent().build();
     }
 }

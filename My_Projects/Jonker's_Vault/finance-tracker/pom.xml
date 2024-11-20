@@ -12,7 +12,7 @@
 	<groupId>com.jonkersvault</groupId>
 	<artifactId>finance-tracker</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>JonkersVaultFinanceTracker</name>
+	<name>JonkersVaultFinanceTracker</name> <!-- Fixed typo (removed apostrophe) -->
 	<description>A comprehensive personal finance management system</description>
 
 	<properties>
@@ -71,12 +71,41 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.xmlunit</groupId>
+					<artifactId>xmlunit-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+
+		<!-- JWT Dependencies -->
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.11.5</version>
 		</dependency>
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.11.5</version>
+		</dependency>
+
+		<!-- Updated xmlunit-core version to fix vulnerability -->
+		<dependency>
+			<groupId>org.xmlunit</groupId>
+			<artifactId>xmlunit-core</artifactId>
+			<version>2.9.1</version> <!-- Updated to the latest secure version -->
+		</dependency>
+
 	</dependencies>
 
 	<build>

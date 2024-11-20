@@ -1,15 +1,28 @@
-// src/components/NavbarComponent.js
 import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../Images/Jonker\'s_Vault.png'; // Update this path as needed
+import axios from 'axios';
 
 const NavbarComponent = () => {
     const location = useLocation();
+    const navigate = useNavigate();
 
-    // Check the current path
-    const isSignupPage = location.pathname === '/signup';
-    const isLoginPage = location.pathname === '/login';
+    // Check if the user is logged in
+    const isAuthenticated = sessionStorage.getItem('isAuthenticated') === 'true';
+
+    // Handle logout
+    const handleLogout = async () => {
+        try {
+            await axios.delete('http://localhost:8080/api/auth/logout', {
+                withCredentials: true, // Send credentials for logout
+            });
+            sessionStorage.removeItem('isAuthenticated'); // Clear authentication status
+            navigate('/login'); // Redirect to the login page
+        } catch (error) {
+            console.error("Logout failed", error);
+        }
+    };
 
     return (
         <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className="navbar">
@@ -27,10 +40,14 @@ const NavbarComponent = () => {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="ms-auto">
-                        {/* Only hide the Login link on the Login Page */}
-                        {!isLoginPage && <Nav.Link href="/login">Login</Nav.Link>}
-                        {/* Only hide the Sign Up link on the Sign Up Page */}
-                        {!isSignupPage && <Nav.Link href="/signup">Sign Up</Nav.Link>}
+                        {!isAuthenticated && location.pathname !== '/login' && <Nav.Link href="/login">Login</Nav.Link>}
+                        {!isAuthenticated && location.pathname !== '/signup' && <Nav.Link href="/signup">Sign Up</Nav.Link>}
+                        {isAuthenticated && <Nav.Link href="/profile">Profile</Nav.Link>} {/* Profile link */}
+                        {isAuthenticated && (
+                            <Nav.Link onClick={handleLogout} style={{ cursor: 'pointer' }}>
+                                Logout
+                            </Nav.Link>
+                        )}
                     </Nav>
                 </Navbar.Collapse>
             </Container>

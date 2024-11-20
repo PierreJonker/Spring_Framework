@@ -1,9 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import App from './App.js'; // Added .js extension
+import reportWebVitals from './reportWebVitals.js'; // Added .js extension
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

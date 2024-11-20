@@ -2,13 +2,11 @@ package com.jonkersvault.controller;
 
 import com.jonkersvault.dto.SignupRequest;
 import com.jonkersvault.dto.LoginRequest;
-import com.jonkersvault.dto.UserResetRequest; // Import the correct DTO for the update
+import com.jonkersvault.dto.UserResetRequest;
 import com.jonkersvault.model.User;
-import com.jonkersvault.service.UserService;
-import lombok.RequiredArgsConstructor;
+import com.jonkersvault.security.JwtUtil;  // JWT utility for generating tokens
+import com.jonkersvault.service.UserService; // UserService for user business logic
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -16,59 +14,59 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    @Autowired
+    private JwtUtil jwtUtil; // Inject JwtUtil for generating tokens
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private UserService userService; // Inject UserService to manage user business logic
 
     // Signup endpoint
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody SignupRequest signupRequest) {
         User user = new User();
         user.setEmail(signupRequest.getEmail());
-        user.setPassword(signupRequest.getPassword());
+        user.setPassword(signupRequest.getPassword());  // Make sure password is encrypted before saving
         user.setBirthDate(signupRequest.getBirthDate());
-        userService.registerUser(user);
+        userService.registerUser(user);  // Register the user in the database
         return ResponseEntity.ok("User registered successfully!");
     }
 
     // Login endpoint
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(), loginRequest.getPassword()
-                )
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        return ResponseEntity.ok("Login successful!");
+        // Authentication logic and token generation
+        String token = jwtUtil.generateToken(loginRequest.getEmail());  // Generate JWT token
+        return ResponseEntity.ok("Bearer " + token);  // Send the JWT token as response
     }
 
-    // Update User details endpoint
+    // Get user details endpoint (authenticated)
+    @GetMapping("/user-details")
+    public ResponseEntity<User> getUserDetails() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String email = authentication.getName(); // Get the email from the authenticated user
+            User user = userService.getUserByEmail(email);  // Get user details by email
+            return ResponseEntity.ok(user);  // Return user details in response
+        }
+        return ResponseEntity.status(401).build(); // Unauthorized if not authenticated
+    }
+
+    // Update user details endpoint
     @PutMapping("/update")
     public ResponseEntity<String> updateUserDetails(@RequestBody UserResetRequest updatedUserRequest) {
         // Get the current authenticated user
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // Pass only the relevant fields to the service method
+        // Set up the user details to update
         User updatedUser = new User();
         updatedUser.setEmail(updatedUserRequest.getEmail());
-        updatedUser.setPassword(updatedUserRequest.getPassword());
+        updatedUser.setPassword(updatedUserRequest.getPassword());  // Encrypt the new password before saving
         updatedUser.setBirthDate(updatedUserRequest.getBirthDate());
 
+        // Update user details in the database
         userService.updateUserDetails(currentUserEmail, updatedUser);
         return ResponseEntity.ok("User details updated successfully!");
-    }
-
-    // Delete User account endpoint
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteUser() {
-        // Get the current authenticated user
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        userService.deleteUserByEmail(currentUserEmail);
-        return ResponseEntity.ok("User account deleted successfully!");
     }
 }

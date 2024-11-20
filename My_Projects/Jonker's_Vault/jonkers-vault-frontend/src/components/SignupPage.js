@@ -1,7 +1,9 @@
 // src/components/SignupPage.js
 import React, { useState } from 'react';
-import { Form, Button, Container } from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';
 import axios from 'axios';
+import { toast } from 'react-toastify'; // Import toast
+import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 import '../App.css'; // Custom styles
 
 const SignupPage = () => {
@@ -14,22 +16,21 @@ const SignupPage = () => {
         if (!date) return '';
         const dateObject = new Date(date);
         const year = dateObject.getFullYear();
-        const month = String(dateObject.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const month = String(dateObject.getMonth() + 1).padStart(2, '0');
         const day = String(dateObject.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Format the date to YYYY-MM-DD
         const formattedDate = formatDate(dateOfBirth);
 
-        // Debugging: Log formatted date to ensure it's correct
-        console.log('Formatted Date:', formattedDate);
-
         if (!formattedDate) {
-            alert('Please enter a valid date in the format YYYY-MM-DD.');
+            toast.error('❌ Please enter a valid date in the format YYYY-MM-DD.', {
+                position: "top-right",
+                autoClose: 3000,
+                style: { maxWidth: "400px" } // Ensures the message is not cut off
+            });
             return;
         }
 
@@ -37,64 +38,84 @@ const SignupPage = () => {
             const response = await axios.post('http://localhost:8080/api/auth/signup', {
                 email,
                 password,
-                birthDate: formattedDate, // Use camel case "birthDate" to match the backend
+                birthDate: formattedDate,
             });
+
             if (response.status === 200) {
-                alert('Signup successful!');
+                toast.success('✅ Signup successful!', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    style: { maxWidth: "400px" }
+                });
             } else {
-                alert('Signup failed. Please try again.');
+                toast.error('❌ Signup failed. Please try again.', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    style: { maxWidth: "400px" }
+                });
             }
         } catch (error) {
             if (error.response && error.response.data) {
-                alert(`Signup failed: ${error.response.data.message}`);
+                toast.error(`⚠️ Signup failed: ${error.response.data.message}`, {
+                    position: "top-right",
+                    autoClose: 3000,
+                    style: { maxWidth: "400px" }
+                });
             } else {
                 console.error('Error during signup:', error);
-                alert('An error occurred. Please try again.');
+                toast.error('❌ An error occurred. Please try again.', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    style: { maxWidth: "400px" }
+                });
             }
         }
     };
 
     return (
-        <Container className="mt-5">
-            <h2>Sign Up</h2>
+        <div className="form-container">
+            <h2 className="title">Sign Up</h2>
             <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="formBasicEmail">
-                    <Form.Label>Email address</Form.Label>
+                <Form.Group controlId="formBasicEmail" className="mt-3">
+                    <Form.Label className="form-label">Email address</Form.Label>
                     <Form.Control
                         type="email"
                         placeholder="Enter email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        className="form-control"
                         required
                     />
                 </Form.Group>
 
                 <Form.Group controlId="formBasicPassword" className="mt-3">
-                    <Form.Label>Password</Form.Label>
+                    <Form.Label className="form-label">Password</Form.Label>
                     <Form.Control
                         type="password"
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        className="form-control"
                         required
                     />
                 </Form.Group>
 
                 <Form.Group controlId="formBasicDateOfBirth" className="mt-3">
-                    <Form.Label>Date of Birth</Form.Label>
+                    <Form.Label className="form-label">Date of Birth</Form.Label>
                     <Form.Control
                         type="date"
                         value={dateOfBirth}
                         onChange={(e) => setDateOfBirth(e.target.value)}
+                        className="form-control"
                         required
                     />
                 </Form.Group>
 
-                <Button variant="primary" type="submit" className="mt-4">
+                <Button variant="primary" type="submit" className="form-button mt-4">
                     Sign Up
                 </Button>
             </Form>
-        </Container>
+        </div>
     );
 };
 

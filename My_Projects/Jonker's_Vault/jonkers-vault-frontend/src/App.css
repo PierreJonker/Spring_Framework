@@ -1,40 +1,105 @@
 /* General page styling */
-.container {
-  max-width: 500px;
-  margin: 50px auto; /* Top margin for spacing */
+.container,
+.home-page {
+  max-width: 700px; /* Reduced width from 800px */
+  margin: 0 auto; /* Center the page horizontally */
+  padding: 20px;
   text-align: center; /* Center the text */
-  color: #32CD32; /* Green color from the logo */
 }
 
+/* Hero Section Styling */
+.hero-section {
+  background-color: #f9f9f9; /* Light background */
+  padding: 30px 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.title,
 h2 {
-  color: #32CD32; /* Green color for headings */
-  margin-bottom: 20px;
-  font-weight: bold; /* Bolder text for emphasis */
+  color: #32CD32; /* Green color for titles and headings */
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.subtitle,
+.feature-item,
+.benefits-text {
+  color: #000; /* Black text color */
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+/* Features Section Styling */
+.features-section {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+}
+
+.feature-item {
+  margin: 10px 0;
+}
+
+/* Benefits Section Styling */
+.benefits-section {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+/* Footer Styling */
+.footer {
+  background-color: #000; /* Black background for the footer */
+  color: #32CD32; /* Green text color for copyright */
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 20px;
 }
 
 /* Button styling */
-button {
+button,
+.form-button {
   background-color: #32CD32;
   border: none; /* Removed border for a clean look */
   color: #fff;
   width: 100%; /* Full-width button */
   font-size: 16px;
-  padding: 12px; /* Larger touch targets */
+  padding: 10px; /* Reduced padding for a smaller button */
   border-radius: 5px; /* Rounded corners */
   transition: background-color 0.3s; /* Smooth hover transition */
 }
 
-button:hover {
+button:hover,
+.form-button:hover {
   background-color: #28a745; /* Darker green on hover */
   cursor: pointer; /* Pointer cursor on hover */
 }
 
 /* Form styling */
+.form-container {
+  max-width: 400px; /* Smaller form block width */
+  background-color: #f9f9f9; /* Light background for form container */
+  padding: 20px; /* Reduced padding */
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for elevation */
+  margin: 30px auto; /* Center the form and add space below */
+  text-align: left; /* Align text to the left for a cleaner look */
+}
+
 .form-control {
   border: 1px solid #32CD32; /* Green border */
   color: #000; /* Black text */
   border-radius: 4px; /* Rounded corners */
-  padding: 10px; /* Padding for better input experience */
+  padding: 8px; /* Reduced padding for input fields */
+  margin-bottom: 15px; /* Space between input fields */
 }
 
 .form-control:focus {

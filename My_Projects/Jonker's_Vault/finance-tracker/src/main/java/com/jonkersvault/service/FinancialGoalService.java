@@ -1,14 +1,15 @@
 package com.jonkersvault.service;
 
+import com.jonkersvault.dto.FinancialGoalDTO;
 import com.jonkersvault.model.FinancialGoal;
-import com.jonkersvault.repository.FinancialGoalRepository;
-import com.jonkersvault.repository.UserRepository;  // Import the UserRepository
 import com.jonkersvault.model.User;
+import com.jonkersvault.repository.FinancialGoalRepository;
+import com.jonkersvault.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FinancialGoalService {
@@ -17,28 +18,34 @@ public class FinancialGoalService {
     private FinancialGoalRepository financialGoalRepository;
 
     @Autowired
-    private UserRepository userRepository;  // Corrected the injection here
+    private UserRepository userRepository;
 
-    // Create a financial goal for the logged-in user
-    public FinancialGoal createGoal(FinancialGoal financialGoal) {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+    public FinancialGoalDTO createGoal(FinancialGoalDTO goalDTO, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        financialGoal.setUser(user); // Associate the goal with the current user
-        return financialGoalRepository.save(financialGoal);
+
+        FinancialGoal goal = new FinancialGoal();
+        goal.setUser(user);
+        goal.setGoalName(goalDTO.getGoalName());
+        goal.setTargetAmount(goalDTO.getTargetAmount());
+        goal.setCurrentAmount(goalDTO.getCurrentAmount());
+        goal.setTargetDate(goalDTO.getTargetDate());
+
+        goal = financialGoalRepository.save(goal);
+        return convertToDTO(goal);
     }
 
-    // Get all financial goals for the logged-in user
-    public List<FinancialGoal> getGoalsByUser() {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+    public List<FinancialGoalDTO> getGoalsByUser(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return financialGoalRepository.findByUser(user); // Fetch only goals for the logged-in user
+
+        List<FinancialGoal> goals = financialGoalRepository.findByUser(user);
+        return goals.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    // Update a financial goal for the logged-in user
-    public FinancialGoal updateGoal(Long goalId, FinancialGoal updatedGoal) {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+    public FinancialGoalDTO updateGoal(Long goalId, FinancialGoalDTO goalDTO, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -49,26 +56,37 @@ public class FinancialGoalService {
             throw new RuntimeException("You can only update your own goals");
         }
 
-        existingGoal.setGoalName(updatedGoal.getGoalName());
-        existingGoal.setTargetAmount(updatedGoal.getTargetAmount());
-        existingGoal.setCurrentAmount(updatedGoal.getCurrentAmount());
-        existingGoal.setTargetDate(updatedGoal.getTargetDate());
-        return financialGoalRepository.save(existingGoal);
+        existingGoal.setGoalName(goalDTO.getGoalName());
+        existingGoal.setTargetAmount(goalDTO.getTargetAmount());
+        existingGoal.setCurrentAmount(goalDTO.getCurrentAmount());
+        existingGoal.setTargetDate(goalDTO.getTargetDate());
+
+        existingGoal = financialGoalRepository.save(existingGoal);
+        return convertToDTO(existingGoal);
     }
 
-    // Delete a financial goal for the logged-in user
-    public void deleteGoal(Long goalId) {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+    public void deleteGoal(Long goalId, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        FinancialGoal existingGoal = financialGoalRepository.findById(goalId)
+        FinancialGoal goal = financialGoalRepository.findById(goalId)
                 .orElseThrow(() -> new RuntimeException("Goal not found"));
 
-        if (!existingGoal.getUser().equals(user)) {
+        if (!goal.getUser().equals(user)) {
             throw new RuntimeException("You can only delete your own goals");
         }
 
-        financialGoalRepository.delete(existingGoal);
+        financialGoalRepository.delete(goal);
+    }
+
+    private FinancialGoalDTO convertToDTO(FinancialGoal goal) {
+        FinancialGoalDTO dto = new FinancialGoalDTO();
+        dto.setId(goal.getId());
+        dto.setGoalName(goal.getGoalName());
+        dto.setTargetAmount(goal.getTargetAmount());
+        dto.setCurrentAmount(goal.getCurrentAmount());
+        dto.setTargetDate(goal.getTargetDate());
+        dto.setCreatedAt(goal.getCreatedAt());
+        return dto;
     }
 }
