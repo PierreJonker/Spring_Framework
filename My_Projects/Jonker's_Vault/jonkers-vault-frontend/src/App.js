@@ -17,16 +17,21 @@ function App() {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/auth/user-details', {
-                    withCredentials: true,
-                });
-                if (response.status === 200) {
-                    setIsAuthenticated(true);
-                    sessionStorage.setItem('isAuthenticated', 'true');
+                const token = localStorage.getItem('token');
+                if (token) {
+                    const response = await axios.get('http://localhost:8080/api/auth/user-details', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    });
+                    if (response.status === 200) {
+                        setIsAuthenticated(true);
+                        localStorage.setItem('isAuthenticated', 'true');
+                    }
                 }
             } catch (error) {
                 setIsAuthenticated(false);
-                sessionStorage.removeItem('isAuthenticated');
+                localStorage.removeItem('isAuthenticated');
             } finally {
                 setIsLoading(false);
             }

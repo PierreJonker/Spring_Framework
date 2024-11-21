@@ -1,6 +1,7 @@
 package com.jonkersvault.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,19 +20,14 @@ import java.util.ArrayList;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Autowired
     private JwtUtil jwtUtil;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
-
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         try {
             String authorizationHeader = request.getHeader("Authorization");
             String username = null;
@@ -44,6 +40,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 } catch (ExpiredJwtException e) {
                     logger.error("JWT token has expired: {}", e.getMessage());
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has expired");
+                    return;
+                } catch (MalformedJwtException e) {
+                    logger.error("JWT token has invalid format: {}", e.getMessage());
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has invalid format");
                     return;
                 }
             }
@@ -66,7 +66,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             filterChain.doFilter(request, response);
-
+        } catch (IllegalArgumentException e) {
+            logger.error("Cannot set user authentication: {}", e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authentication processing failed");
         } catch (Exception e) {
             logger.error("Cannot set user authentication: {}", e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Authentication processing failed");

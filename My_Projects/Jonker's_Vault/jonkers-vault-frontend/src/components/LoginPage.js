@@ -17,21 +17,29 @@ const LoginPage = () => {
             const response = await axios.post('http://localhost:8080/api/auth/login', {
                 email,
                 password,
-            }, {
-                withCredentials: true, // Send cookies with the request for session-based auth
             });
-
+    
             if (response.status === 200) {
                 toast.success('✅ Login successful!', {
                     position: "top-right",
                     autoClose: 3000,
                 });
-
-                // Store authentication info in sessionStorage
-                sessionStorage.setItem('isAuthenticated', 'true');
-                sessionStorage.setItem('userEmail', response.data.email);
-
-                navigate('/profile');
+    
+                // Log the response to see if the frontend gets the token
+                console.log("Response from Backend:", response); // Logs the entire response, including the token
+    
+                // Extract token from response and store it in localStorage
+                const token = response.data.token.split(' ')[1]; // Remove 'Bearer ' from the token
+    
+                console.log("JWT Token stored in localStorage:", token); // This will print the token to the console
+    
+                localStorage.setItem('token', token); // Store token
+                localStorage.setItem('isAuthenticated', 'true'); // Set auth status
+    
+                // Optionally store user information if needed
+                localStorage.setItem('userEmail', email);
+    
+                navigate('/profile'); // Redirect to the profile or dashboard page
             }
         } catch (error) {
             toast.error('⚠️ Error: Please check your credentials and try again.', {

@@ -1,16 +1,19 @@
 package com.jonkersvault.controller;
 
-import com.jonkersvault.dto.SignupRequest;
+import com.jonkersvault.model.JwtResponse;  // Import JwtResponse DTO
 import com.jonkersvault.dto.LoginRequest;
+import com.jonkersvault.dto.SignupRequest;
 import com.jonkersvault.dto.UserResetRequest;
 import com.jonkersvault.model.User;
 import com.jonkersvault.security.JwtUtil;  // JWT utility for generating tokens
 import com.jonkersvault.service.UserService; // UserService for user business logic
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -35,10 +38,12 @@ public class UserController {
 
     // Login endpoint
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
         // Authentication logic and token generation
         String token = jwtUtil.generateToken(loginRequest.getEmail());  // Generate JWT token
-        return ResponseEntity.ok("Bearer " + token);  // Send the JWT token as response
+
+        // Return the token as a JSON response using JwtResponse DTO
+        return ResponseEntity.ok(new JwtResponse("Bearer " + token));  // Send the JWT token as response
     }
 
     // Get user details endpoint (authenticated)

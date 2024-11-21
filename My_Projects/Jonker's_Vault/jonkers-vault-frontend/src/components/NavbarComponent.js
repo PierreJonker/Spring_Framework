@@ -1,23 +1,28 @@
 import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import logo from '../Images/Jonker\'s_Vault.png'; // Update this path as needed
+import logo from '../Images/Jonker\'s_Vault.png';
 import axios from 'axios';
 
 const NavbarComponent = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Check if the user is logged in
-    const isAuthenticated = sessionStorage.getItem('isAuthenticated') === 'true';
+    // Check if the user is logged in by checking localStorage for the token
+    const isAuthenticated = localStorage.getItem('token') !== null;
 
     // Handle logout
     const handleLogout = async () => {
         try {
+            // Make a logout API call, sending the token in Authorization header
             await axios.delete('http://localhost:8080/api/auth/logout', {
-                withCredentials: true, // Send credentials for logout
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`, // Send JWT token for logout
+                },
             });
-            sessionStorage.removeItem('isAuthenticated'); // Clear authentication status
+            // Remove the token and user info from localStorage
+            localStorage.removeItem('token');
+            localStorage.removeItem('isAuthenticated');
             navigate('/login'); // Redirect to the login page
         } catch (error) {
             console.error("Logout failed", error);
