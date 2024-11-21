@@ -9,6 +9,7 @@ const ProfilePage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // Manage password visibility
 
   // Fetch user details when the component mounts
   useEffect(() => {
@@ -31,7 +32,7 @@ const ProfilePage = () => {
         }
     };
     fetchUserDetails();
-}, []);
+  }, []);
 
   // Handle updating user details
   const handleUpdate = async (e) => {
@@ -109,13 +110,21 @@ const ProfilePage = () => {
 
         <Form.Group controlId="formBasicPassword" className="mt-3">
           <Form.Label className="form-label">Password</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="Enter new password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="form-control"
-          />
+          <div className="password-input">
+            <Form.Control
+              type={showPassword ? "text" : "password"} // Toggle password visibility
+              placeholder="Enter new password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="form-control"
+            />
+            <i
+              className={`eye-icon ${showPassword ? "show" : "hide"}`}
+              onClick={() => setShowPassword(!showPassword)} // Toggle the eye icon click
+            >
+              👁️
+            </i>
+          </div>
         </Form.Group>
 
         <Form.Group controlId="formBasicDateOfBirth" className="mt-3">

@@ -10,6 +10,7 @@ const SignupPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [dateOfBirth, setDateOfBirth] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // Manage password visibility
     const navigate = useNavigate(); // Hook to navigate to the login page
 
     // Helper function to format the date to YYYY-MM-DD
@@ -96,14 +97,22 @@ const SignupPage = () => {
 
                 <Form.Group controlId="formBasicPassword" className="mt-3">
                     <Form.Label className="form-label">Password</Form.Label>
-                    <Form.Control
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="form-control"
-                        required
-                    />
+                    <div className="password-input">
+                        <Form.Control
+                            type={showPassword ? "text" : "password"} // Toggle password visibility
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="form-control"
+                            required
+                        />
+                        <i
+                            className={`eye-icon ${showPassword ? "show" : "hide"}`}
+                            onClick={() => setShowPassword(!showPassword)} // Toggle the eye icon click
+                        >
+                            👁️
+                        </i>
+                    </div>
                 </Form.Group>
 
                 <Form.Group controlId="formBasicDateOfBirth" className="mt-3">

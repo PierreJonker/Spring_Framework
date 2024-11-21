@@ -9,6 +9,7 @@ import '../App.css';
 const LoginPage = ({ onAuthChange }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // Manage password visibility
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
@@ -72,14 +73,22 @@ const LoginPage = ({ onAuthChange }) => {
 
                     <Form.Group controlId="formBasicPassword" className="form-group">
                         <Form.Label>Password</Form.Label>
-                        <Form.Control
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="form-control"
-                        />
+                        <div className="password-input">
+                            <Form.Control
+                                type={showPassword ? "text" : "password"} // Toggle password visibility
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                className="form-control"
+                            />
+                            <i
+                                className={`eye-icon ${showPassword ? "show" : "hide"}`}
+                                onClick={() => setShowPassword(!showPassword)} // Toggle the eye icon click
+                            >
+                                👁️
+                            </i>
+                        </div>
                     </Form.Group>
 
                     <Button variant="primary" type="submit" className="form-button">
