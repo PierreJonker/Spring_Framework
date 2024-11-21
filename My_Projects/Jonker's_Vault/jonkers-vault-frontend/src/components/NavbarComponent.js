@@ -3,6 +3,8 @@ import { Navbar, Nav, Container } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../Images/Jonker\'s_Vault.png';
 import axios from 'axios';
+import { toast } from 'react-toastify';  // Import toast for success message
+import 'react-toastify/dist/ReactToastify.css';
 
 const NavbarComponent = () => {
     const location = useLocation();
@@ -23,9 +25,21 @@ const NavbarComponent = () => {
             // Remove the token and user info from localStorage
             localStorage.removeItem('token');
             localStorage.removeItem('isAuthenticated');
-            navigate('/login'); // Redirect to the login page
+            
+            // Show success message using toast
+            toast.success('✅ Logout successful!', {
+                position: "top-right",
+                autoClose: 3000,
+            });
+
+            // Redirect to home page
+            navigate('/');  // Redirect to the home page after logout
         } catch (error) {
             console.error("Logout failed", error);
+            toast.error('⚠️ Logout failed, please try again!', {
+                position: "top-right",
+                autoClose: 3000,
+            });
         }
     };
 

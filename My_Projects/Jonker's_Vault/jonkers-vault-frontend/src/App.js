@@ -14,6 +14,12 @@ function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
+    // Function to update authentication state from the LoginPage
+    const handleAuthChange = (status) => {
+        setIsAuthenticated(status);
+    };
+
+    // Check authentication on initial load
     useEffect(() => {
         const checkAuth = async () => {
             try {
@@ -38,15 +44,14 @@ function App() {
         };
 
         checkAuth();
-    }, []);
+    }, []); // Only run on initial load
 
-    // Add axios default configuration
-    axios.defaults.withCredentials = true;
-
+    // If still loading authentication, show a loading indicator
     if (isLoading) {
-        return <div>Loading...</div>; // Or your loading component
+        return <div>Loading...</div>;
     }
 
+    // Protected route component to handle authenticated access
     const ProtectedRoute = ({ element }) => {
         return isAuthenticated ? element : <Navigate to="/login" />;
     };
@@ -55,7 +60,10 @@ function App() {
         <Router>
             <NavbarComponent isAuthenticated={isAuthenticated} />
             <Routes>
-                <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/profile" />} />
+                <Route
+                    path="/login"
+                    element={!isAuthenticated ? <LoginPage onAuthChange={handleAuthChange} /> : <Navigate to="/profile" />}
+                />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/" element={<HomePage />} />
                 <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />

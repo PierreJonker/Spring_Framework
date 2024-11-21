@@ -3,12 +3,14 @@ import { Form, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify'; // Import toast
 import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import '../App.css'; // Custom styles
 
 const SignupPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [dateOfBirth, setDateOfBirth] = useState('');
+    const navigate = useNavigate(); // Hook to navigate to the login page
 
     // Helper function to format the date to YYYY-MM-DD
     const formatDate = (date) => {
@@ -46,6 +48,11 @@ const SignupPage = () => {
                     autoClose: 3000,
                     style: { maxWidth: "400px" }
                 });
+
+                // Redirect to login page after successful signup
+                setTimeout(() => {
+                    navigate('/login');
+                }, 1000); // Redirect after 1 second to allow the toast to show
             } else {
                 toast.error('❌ Signup failed. Please try again.', {
                     position: "top-right",
