@@ -1,3 +1,4 @@
+// src/App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import axios from 'axios';
@@ -6,6 +7,7 @@ import LoginPage from './components/LoginPage.js';
 import SignupPage from './components/SignupPage.js';
 import HomePage from './components/HomePage.js';
 import ProfilePage from './components/ProfilePage.js';
+import TransactionsPage from './components/TransactionsPage.js'; // Import TransactionsPage
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
@@ -27,7 +29,7 @@ function App() {
                 if (token) {
                     const response = await axios.get('http://localhost:8080/api/auth/user-details', {
                         headers: {
-                            'Authorization': `Bearer ${token}`,
+                            Authorization: `Bearer ${token}`,
                         },
                     });
                     if (response.status === 200) {
@@ -67,6 +69,7 @@ function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/" element={<HomePage />} />
                 <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
+                <Route path="/transactions" element={<ProtectedRoute element={<TransactionsPage />} />} />
             </Routes>
             <ToastContainer />
         </Router>
