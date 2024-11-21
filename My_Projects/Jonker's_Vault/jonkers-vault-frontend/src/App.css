@@ -83,6 +83,12 @@ button:hover,
   cursor: pointer; /* Pointer cursor on hover */
 }
 
+/* Remove the green active background for buttons */
+button:active,
+.form-button:active {
+  background-color: #32CD32; /* No change in background color when the button is pressed */
+}
+
 /* Form styling */
 .form-container {
   max-width: 400px; /* Smaller form block width */
@@ -157,10 +163,101 @@ button:hover,
   font-size: 1.3rem; /* Adjust the icon size */
   color: gray; /* Default color for the icon */
   top: 40%; /* Adjust the icon's vertical position */
-  transform: translateY(-52%); /* Adjust vertical alignment to center */
+  transform: translateY(-58%); /* Adjust vertical alignment to center */
 }
+
 .form-control {
   width: 100%; /* Full width of the input fields */
   padding-left: 40px; /* Add space for the eye icon on the left side */
   font-size: 1rem; /* Adjust font size for input field */
+}
+
+/* New additions for layout consistency */
+.navbar-container {
+    margin-bottom: 20px; /* Space below the navbar */
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-around; /* Distribute links evenly */
+    background-color: #000;
+    padding: 10px 20px;
+}
+
+.nav-link {
+    color: #32CD32; /* Green color for navbar links */
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.nav-link:hover {
+    color: #28a745;
+}
+
+.nav-link.active {
+    background-color: transparent !important;  /* Make the active background transparent */
+    color: #32CD32 !important;  /* Keep the green text color for active links */
+}
+
+/* Hero Section and Titles */
+.hero-section {
+    background-color: #f9f9f9;
+    padding: 30px 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.title, h2 {
+    color: #32CD32;
+    font-size: 36px;
+    font-weight: bold;
+}
+
+/* Miscellaneous */
+.subtitle, .feature-item, .benefits-text {
+    color: #000;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+/* Styling for the Tabs */
+.nav-tabs .nav-link.active {
+  background-color: #2A2A2A; /* Set active tab background to match the navbar background */
+  color: white;
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: #2A2A2A; /* Hover effect matches navbar background */
+  color: white;
+}
+
+.tab-title {
+  color: #32CD32;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.nav-tabs .nav-link {
+  color: #32CD32 !important;
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: #2A2A2A;
+  color: white;
+}
+
+/* Transaction and Budget Titles inside Forms */
+.form-container h2 {
+  color: #32CD32; /* Green color for titles inside forms */
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 20px; /* Space between title and form content */
+}
+
+.form-container .tab-title {
+  text-align: center;
+  font-size: 36px;
+  font-weight: bold;
+  color: #32CD32; /* Green color for titles */
 }
