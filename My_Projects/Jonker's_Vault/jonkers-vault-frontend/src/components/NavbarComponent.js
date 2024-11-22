@@ -57,6 +57,7 @@ const NavbarComponent = ({ isAuthenticated }) => {
                         {!isAuthenticated && location.pathname !== '/signup' && <Nav.Link href="/signup">Sign Up</Nav.Link>}
                         {isAuthenticated && <Nav.Link href="/profile">Profile</Nav.Link>}
                         {isAuthenticated && <Nav.Link href="/transactions">Transactions</Nav.Link>} {/* Transactions link */}
+                        {isAuthenticated && <Nav.Link href="/financial-goals">Financial Goals</Nav.Link>} {/* Financial Goals link */}
                         {isAuthenticated && (
                             <Nav.Link onClick={handleLogout} style={{ cursor: 'pointer' }}>
                                 Logout

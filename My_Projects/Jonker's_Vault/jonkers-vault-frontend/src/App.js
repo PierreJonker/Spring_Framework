@@ -8,6 +8,7 @@ import SignupPage from './components/SignupPage.js';
 import HomePage from './components/HomePage.js';
 import ProfilePage from './components/ProfilePage.js';
 import TransactionsPage from './components/TransactionsPage.js'; // Import TransactionsPage
+import FinancialGoalsPage from './components/FinancialGoalsPage.js'; // Import FinancialGoalsPage
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
@@ -70,6 +71,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/profile" element={<ProtectedRoute element={<ProfilePage />} />} />
                 <Route path="/transactions" element={<ProtectedRoute element={<TransactionsPage />} />} />
+                <Route path="/financial-goals" element={<ProtectedRoute element={<FinancialGoalsPage />} />} /> {/* Financial Goals Page */}
             </Routes>
             <ToastContainer />
         </Router>
