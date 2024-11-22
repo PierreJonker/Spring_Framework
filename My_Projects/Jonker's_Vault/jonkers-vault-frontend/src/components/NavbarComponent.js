@@ -25,7 +25,9 @@ const NavbarComponent = ({ isAuthenticated }) => {
                 position: 'top-right',
                 autoClose: 3000,
             });
-            navigate('/'); // Redirect to the home page after logout
+            // Redirect to the home page after logout using navigate
+            navigate('/'); // This line is necessary to trigger the navigate function
+            window.location.reload(); // Reload the page to update the state
         } catch (error) {
             console.error('Logout failed', error);
             toast.error('⚠️ Logout failed, please try again!', {

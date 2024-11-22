@@ -98,6 +98,7 @@ public class TransactionService {
         transactionDTO.setTransactionDate(transaction.getTransactionDate());
         transactionDTO.setDescription(transaction.getDescription());
         transactionDTO.setCreatedAt(transaction.getCreatedAt());
+        transactionDTO.setCategoryName(transaction.getCategory().getName()); // Set category name
         return transactionDTO;
     }
 }

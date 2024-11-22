@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Modal } from 'react-bootstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -10,26 +10,28 @@ const ProfilePage = () => {
   const [password, setPassword] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [showPassword, setShowPassword] = useState(false); // Manage password visibility
+  const [showConfirmModal, setShowConfirmModal] = useState(false); // Show confirmation modal for update
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // Show confirmation modal for delete
 
   // Fetch user details when the component mounts
   useEffect(() => {
     const fetchUserDetails = async () => {
-        try {
-            const token = localStorage.getItem('token');  // Get token from localStorage
-            const response = await axios.get('http://localhost:8080/api/auth/user-details', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,  // Attach token in the header
-                }
-            });
-            const { email, birthDate } = response.data;
-            setEmail(email);
-            setDateOfBirth(birthDate);
-        } catch (error) {
-            toast.error('⚠️ Error fetching user details. Please try again.', {
-                position: "top-right",
-                autoClose: 3000,
-            });
-        }
+      try {
+        const token = localStorage.getItem('token');  // Get token from localStorage
+        const response = await axios.get('http://localhost:8080/api/auth/user-details', {
+          headers: {
+            'Authorization': `Bearer ${token}`,  // Attach token in the header
+          }
+        });
+        const { email, birthDate } = response.data;
+        setEmail(email);
+        setDateOfBirth(birthDate);
+      } catch (error) {
+        toast.error('⚠️ Error fetching user details. Please try again.', {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
     };
     fetchUserDetails();
   }, []);
@@ -37,10 +39,18 @@ const ProfilePage = () => {
   // Handle updating user details
   const handleUpdate = async (e) => {
     e.preventDefault();
+    setShowConfirmModal(true);  // Show confirmation modal for update
+  };
+
+  // Handle deleting user account
+  const handleDelete = () => {
+    setShowDeleteModal(true);  // Show confirmation modal for delete
+  };
+
+  // Confirm update action
+  const confirmUpdate = async () => {
     try {
       const token = localStorage.getItem('token');
-      console.log('Using token:', token);
-
       const response = await axios.put('http://localhost:8080/api/auth/update', {
         email,
         password: password || undefined, // Only send the password if it's not empty
@@ -62,15 +72,13 @@ const ProfilePage = () => {
         autoClose: 3000,
       });
     }
+    setShowConfirmModal(false); // Close modal after action
   };
 
-  // Handle deleting user account
-  const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) return;
+  // Confirm delete action
+  const confirmDelete = async () => {
     try {
       const token = localStorage.getItem('token');
-      console.log('Using token:', token);
-
       const response = await axios.delete('http://localhost:8080/api/auth/delete', {
         headers: {
           'Authorization': `Bearer ${token}`, // Send the token here
@@ -90,6 +98,7 @@ const ProfilePage = () => {
         autoClose: 3000,
       });
     }
+    setShowDeleteModal(false); // Close modal after action
   };
 
   return (
@@ -145,6 +154,38 @@ const ProfilePage = () => {
           Delete Account
         </Button>
       </Form>
+
+      {/* Modal for confirmation of update */}
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Update</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to update your profile?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={confirmUpdate}>
+            Confirm Update
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal for confirmation of delete */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete your account? This action cannot be undone.</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmDelete}>
+            Confirm Deletion
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

@@ -261,3 +261,8 @@ button:active,
   font-weight: bold;
   color: #32CD32; /* Green color for titles */
 }
+
+/* Add space between the action buttons (Edit & Delete) */
+.table .btn {
+    margin-right: 10px; /* Space between the buttons */
+}

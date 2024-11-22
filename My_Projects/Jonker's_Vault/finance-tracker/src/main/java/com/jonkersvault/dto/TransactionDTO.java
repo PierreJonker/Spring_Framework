@@ -11,6 +11,7 @@ public class TransactionDTO {
     private LocalDate transactionDate;
     private String description;
     private LocalDate createdAt;
+    private String categoryName;  // Add categoryName field
 
     // Getters and setters
     public Long getId() { return id; }
@@ -27,4 +28,14 @@ public class TransactionDTO {
     public void setDescription(String description) { this.description = description; }
     public LocalDate getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDate createdAt) { this.createdAt = createdAt; }
+
+    // Getter for categoryName
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    // Setter for categoryName
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
 }

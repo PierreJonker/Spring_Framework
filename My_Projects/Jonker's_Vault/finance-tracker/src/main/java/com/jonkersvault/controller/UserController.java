@@ -69,7 +69,7 @@ public class UserController {
                 userService.updateUserDetails(user.getEmail(), user);  // Update user with the new hashed password
             }
 
-            // If credentials are valid now, generate the token
+            // If the password is valid now, generate the token
             String token = jwtUtil.generateToken(loginRequest.getEmail());
             return ResponseEntity.ok(new JwtResponse(token));
         }
@@ -115,5 +115,18 @@ public class UserController {
         // Update user details in the database
         userService.updateUserDetails(currentUserEmail, updatedUser);
         return ResponseEntity.ok("User details updated successfully!");
+    }
+
+    // Delete user account endpoint
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteUserAccount() {
+        // Get the current authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String email = authentication.getName(); // Get the email of the authenticated user
+            userService.deleteUserByEmail(email); // Delete the user by email
+            return ResponseEntity.ok("User account deleted successfully!");
+        }
+        return ResponseEntity.status(401).body("Unauthorized"); // Unauthorized if not authenticated
     }
 }

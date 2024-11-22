@@ -49,4 +49,5 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         userRepository.delete(user); // Deletes the user from the database
     }
+    
 }

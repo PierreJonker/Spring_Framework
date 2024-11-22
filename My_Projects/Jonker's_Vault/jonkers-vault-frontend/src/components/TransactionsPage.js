@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Button, Table, Tabs, Tab } from 'react-bootstrap';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Form, Button, Table, Tabs, Tab, Modal } from 'react-bootstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -10,20 +10,17 @@ const TransactionsPage = () => {
     const [transactions, setTransactions] = useState([]);
     const [budgets, setBudgets] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [transactionForm, setTransactionForm] = useState({ description: '', amount: '', date: '', categoryId: '' });
+    const [transactionForm, setTransactionForm] = useState({ description: '', amount: '', date: '', categoryId: '', id: '' });
     const [budgetForm, setBudgetForm] = useState({ categoryId: '', amount: '', startDate: '', endDate: '', id: '' });
-
-    useEffect(() => {
-        fetchTransactions();
-        fetchBudgets();
-        fetchCategories();
-    }, []);
+    const [showModal, setShowModal] = useState(false);
+    const [selectedItemId, setSelectedItemId] = useState(null);
+    const [deleteType, setDeleteType] = useState('');
 
     const getAuthToken = () => {
         return localStorage.getItem('token');
     };
 
-    const fetchTransactions = async () => {
+    const fetchTransactions = useCallback(async () => {
         try {
             const token = getAuthToken();
             const response = await axios.get('http://localhost:8080/api/transactions', {
@@ -33,9 +30,9 @@ const TransactionsPage = () => {
         } catch (error) {
             toast.error('Error fetching transactions.', { position: 'top-right' });
         }
-    };
+    }, []);
 
-    const fetchBudgets = async () => {
+    const fetchBudgets = useCallback(async () => {
         try {
             const token = getAuthToken();
             const response = await axios.get('http://localhost:8080/api/budgets', {
@@ -45,9 +42,9 @@ const TransactionsPage = () => {
         } catch (error) {
             toast.error('Error fetching budgets.', { position: 'top-right' });
         }
-    };
+    }, []);
 
-    const fetchCategories = async () => {
+    const fetchCategories = useCallback(async () => {
         try {
             const token = getAuthToken();
             const response = await axios.get('http://localhost:8080/api/categories', {
@@ -57,23 +54,46 @@ const TransactionsPage = () => {
         } catch (error) {
             toast.error('Error fetching categories.', { position: 'top-right' });
         }
-    };
+    }, []);
 
+    useEffect(() => {
+        const fetchAllData = async () => {
+            await Promise.all([fetchTransactions(), fetchBudgets(), fetchCategories()]);
+        };
+        fetchAllData();
+    }, [fetchTransactions, fetchBudgets, fetchCategories]);  // Add these functions to the dependency array
+
+    // Handle the submission of the transaction form
     const handleTransactionSubmit = async (e) => {
         e.preventDefault();
         try {
             const token = getAuthToken();
-            await axios.post('http://localhost:8080/api/transactions', transactionForm, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            toast.success('Transaction added successfully!', { position: 'top-right' });
-            setTransactionForm({ description: '', amount: '', date: '', categoryId: '' });
+            const formattedDate = new Date().toISOString().split('T')[0];
+            const updatedTransaction = { 
+                ...transactionForm, 
+                transactionDate: formattedDate,
+            };
+    
+            if (transactionForm.id) {
+                await axios.put(`http://localhost:8080/api/transactions/${transactionForm.id}`, updatedTransaction, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                toast.success('Transaction updated successfully!', { position: 'top-right' });
+            } else {
+                await axios.post('http://localhost:8080/api/transactions', updatedTransaction, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                toast.success('Transaction added successfully!', { position: 'top-right' });
+            }
+            
+            setTransactionForm({ description: '', amount: '', date: '', categoryId: '', id: '' });
             fetchTransactions();
         } catch (error) {
-            toast.error('Error adding transaction.', { position: 'top-right' });
+            toast.error('Error saving transaction.', { position: 'top-right' });
         }
     };
 
+    // Handle the submission of the budget form
     const handleBudgetSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -96,32 +116,52 @@ const TransactionsPage = () => {
         }
     };
 
-    const handleDeleteTransaction = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this transaction?')) return;
+    // Handle delete functionality
+    const handleDelete = async () => {
+        const token = getAuthToken();
         try {
-            const token = getAuthToken();
-            await axios.delete(`http://localhost:8080/api/transactions/${id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            toast.success('Transaction deleted!', { position: 'top-right' });
-            fetchTransactions();
+            if (deleteType === 'transaction') {
+                await axios.delete(`http://localhost:8080/api/transactions/${selectedItemId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                toast.success('Transaction deleted!', { position: 'top-right' });
+                fetchTransactions();
+            } else if (deleteType === 'budget') {
+                await axios.delete(`http://localhost:8080/api/budgets/${selectedItemId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                toast.success('Budget deleted!', { position: 'top-right' });
+                fetchBudgets();
+            }
         } catch (error) {
-            toast.error('Error deleting transaction.', { position: 'top-right' });
+            toast.error(`Error deleting ${deleteType}.`, { position: 'top-right' });
         }
+        setShowModal(false);
     };
 
-    const handleDeleteBudget = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this budget?')) return;
-        try {
-            const token = getAuthToken();
-            await axios.delete(`http://localhost:8080/api/budgets/${id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            toast.success('Budget deleted!', { position: 'top-right' });
-            fetchBudgets();
-        } catch (error) {
-            toast.error('Error deleting budget.', { position: 'top-right' });
-        }
+    const openDeleteModal = (id, type) => {
+        setSelectedItemId(id);
+        setDeleteType(type);
+        setShowModal(true);
+    };
+
+    const handleDeleteTransaction = (id) => {
+        openDeleteModal(id, 'transaction');
+    };
+
+    const handleDeleteBudget = (id) => {
+        openDeleteModal(id, 'budget');
+    };
+
+    const handleEditTransaction = (transaction) => {
+        setTransactionForm({
+            description: transaction.description,
+            amount: transaction.amount,
+            date: transaction.transactionDate,
+            categoryId: transaction.categoryId,
+            id: transaction.id,
+        });
+        setActiveTab('transactions');
     };
 
     const handleEditBudget = (budget) => {
@@ -187,7 +227,7 @@ const TransactionsPage = () => {
                                     ))}
                                 </Form.Control>
                             </Form.Group>
-                            <Button type="submit" variant="primary">Add Transaction</Button>
+                            <Button type="submit" variant="primary">{transactionForm.id ? 'Update Transaction' : 'Add Transaction'}</Button>
                         </Form>
                     </div>
                     <Table striped bordered hover className="mt-4">
@@ -205,12 +245,17 @@ const TransactionsPage = () => {
                                 <tr key={transaction.id}>
                                     <td>{transaction.description}</td>
                                     <td>{`R ${transaction.amount.toFixed(2)}`}</td>
-                                    <td>{transaction.date}</td>
+                                    <td>{transaction.transactionDate}</td>
                                     <td>{transaction.categoryName}</td>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <Button variant="danger" size="sm" onClick={() => handleDeleteTransaction(transaction.id)}>
-                                            Delete
-                                        </Button>
+                                    <td>
+                                        <div className="d-flex justify-content-center gap-2">
+                                            <Button variant="success" size="sm" onClick={() => handleEditTransaction(transaction)}>
+                                                Edit
+                                            </Button>
+                                            <Button variant="danger" size="sm" onClick={() => handleDeleteTransaction(transaction.id)}>
+                                                Delete
+                                            </Button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -287,13 +332,15 @@ const TransactionsPage = () => {
                                     <td>{`R ${budget.amount.toFixed(2)}`}</td>
                                     <td>{budget.startDate}</td>
                                     <td>{budget.endDate}</td>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <Button variant="success" size="sm" onClick={() => handleEditBudget(budget)}>
-                                            Edit
-                                        </Button>
-                                        <Button variant="danger" size="sm" onClick={() => handleDeleteBudget(budget.id)}>
-                                            Delete
-                                        </Button>
+                                    <td>
+                                        <div className="d-flex justify-content-center gap-2">
+                                            <Button variant="success" size="sm" onClick={() => handleEditBudget(budget)}>
+                                                Edit
+                                            </Button>
+                                            <Button variant="danger" size="sm" onClick={() => handleDeleteBudget(budget.id)}>
+                                                Delete
+                                            </Button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -301,6 +348,21 @@ const TransactionsPage = () => {
                     </Table>
                 </Tab>
             </Tabs>
+
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>Are you sure you want to delete this {deleteType}?</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={handleDelete}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };
